@@ -28,19 +28,23 @@ static volatile int score = 0;
 static volatile int selectedButton = -1;
 static volatile int lastSelectedButton = -1;
 static volatile int timeleft = -1;
-static volatile int timeleftTop = 2000;
+static volatile int timeleftTop = 8000;
 
 static void setTimeleftTop() {
 	// Change time
-	if (score > 30) {
-		if (timeleftTop > 20) timeleftTop--;
+	if (score > 31) {
+		if (timeleftTop > 200) timeleftTop-=2;
 	}
-	else if (score > 20)
+	else if (score > 30)
 		timeleftTop = 500;
-	else if (score > 5)
+	else if (score > 20)
 		timeleftTop = 1000;
-	else
+	else if (score > 10)
 		timeleftTop = 2000;
+	else if (score > 5)
+		timeleftTop = 4000;
+	else
+		timeleftTop = 8000;
 }
 
 static void scoreInc() {
