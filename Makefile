@@ -20,7 +20,7 @@ TARGET = ArcadeButtons
 # building variables
 ######################################
 # debug build?
-DEBUG = 1
+DEBUG = 0
 # optimization
 OPT = -Og
 
@@ -203,14 +203,25 @@ $(BUILD_DIR):
 #######################################
 # clean up
 #######################################
+ifeq ($(OS),Windows_NT)
+JLINK := JLink.exe
+else
+JLINK := jlinkexe
+endif
+
 clean:
 	-rm -fR $(BUILD_DIR)
+	
 flash:
-	"C:\Program Files (x86)\SEGGER\JLink_V630d\Jlink.exe" -device STM32F103C8 -if swd -speed 4500 -autoconnect 1 -CommanderScript flash.JLinkScript
+	$(JLINK) -device STM32F103C8 -if swd -speed 4500 -autoconnect 1 -CommanderScript flash.JLinkScript
 
+reset:
+	$(JLINK) -device STM32F103C8 -if SWD -speed 4000 -autoconnect 1 -CommanderScript reset.JLinkScript
+	
 erase:
-	"C:\Program Files (x86)\SEGGER\JLink_V630d\Jlink.exe" -device STM32F103C8 -if swd -speed 4500 -autoconnect 1 -CommanderScript erase.JLinkScript
-    
+	$(JLINK) -device STM32F103C8 -if swd -speed 4500 -autoconnect 1 -CommanderScript erase.JLinkScript
+
+
 #######################################
 # dependencies
 #######################################
