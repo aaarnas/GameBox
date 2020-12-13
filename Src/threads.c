@@ -15,7 +15,8 @@
 #define GAME_BUTTON_FLOW   0
 #define GAME_BUTTON_MEMORY 1
 
-#define SHUTDOWN_DELAY 60000
+#define SHUTDOWN_COUNTER 60
+#define SLEEP_DELAY 60000
 
 #define DISPLAY_BRIGHTNESS 5
 
@@ -27,7 +28,8 @@ static uint8_t game1[4] = {0x06, 0x0, 0x0, 0x0};
 static uint8_t game2[4] = {0x5b, 0x0, 0x0, 0x0};
 static uint8_t dnull[4] = {0x0, 0x0, 0x0, 0x0};
 static uint32_t menuButtonHoldTime = 0;
-static uint32_t shutdownTime = 0;
+static int shutdownCounter = 0;
+static uint32_t sleepTime = 0;
 static int isSleepMode = 0;
 static int isMenuActive = 0;
 
@@ -96,9 +98,13 @@ void ShutdownMonitorThread(void const * argument)
 			tm1637SetBrightness(DISPLAY_BRIGHTNESS);
 			osDelay(70);
 			tm1637SetBrightness(0);
+			if (shutdownCounter-- < 0) {
+			    // Put to lowest power mode
+			    HAL_PWR_EnterSTANDBYMode();
+			}
 		}
-		else if (shutdownTime) {
-			if (shutdownTime < osKernelSysTick()) {
+		else if (sleepTime) {
+			if (sleepTime < osKernelSysTick()) {
 				// Enter sleep
 				timeFunc = NULL;
 				controlsFunc = NULL;
@@ -106,7 +112,8 @@ void ShutdownMonitorThread(void const * argument)
 				tm1637Display(dnull, 1);
 				tm1637SetBrightness(0);
 				isSleepMode = 1;
-				shutdownTime = 0;
+				sleepTime = 0;
+				shutdownCounter = SHUTDOWN_COUNTER;
 			}
 		}
 
@@ -159,7 +166,7 @@ void ControlsThread(void const * argument)
 		btn = Button_getPressed();
 		if (btn != -1) {
 			if (btn != lastBtn) {
-				shutdownTime = osKernelSysTick()+SHUTDOWN_DELAY;
+				sleepTime = osKernelSysTick()+SLEEP_DELAY;
 				lastBtn = btn;
 			}
 		}
