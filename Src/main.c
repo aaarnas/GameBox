@@ -257,6 +257,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE END Callback 1 */
 }
 
+void vApplicationIdleHook(void)
+{
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+}
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
